@@ -1,0 +1,89 @@
+---
+title: "SDE Data Diff Report"
+format:
+  dashboard:
+    scrolling: true
+---
+
+```{python comparison-list}
+#| echo: false
+
+# import nested dictionary of comparisons from a separate python script
+
+with open('comparison_dict.py') as f:
+    exec(f.read())
+```
+
+```{python import-libraries}
+#| echo: false
+
+import pygeodiff
+import pandas as pd
+import geopandas as gpd
+import re
+import os
+from IPython.display import Markdown
+from itables import show
+geodiff = pygeodiff.GeoDiff()
+```
+
+```{python import-custom-functions}
+#| echo: false
+import diff_df # these are custom functions from diff_df.py
+```
+
+```{python make-diff-table-tabs}
+#| echo: false
+#| output: asis
+
+for i in comparisons:
+    diff_list = diff_df.find_differences(comparisons[i]['original'], comparisons[i]['changed'], 'a-to-b')
+    
+    diff_summary = diff_df.summarize_differences('a-to-b')
+    
+    deleted = diff_df.deleted_rows(diff_list, comparisons[i]['original'])
+    inserted = diff_df.inserted_rows(diff_list, comparisons[i]['changed'])
+    updated = diff_df.changed_rows(diff_list, comparisons[i]['original'])
+    
+    print('# ' + comparisons[i]['name'] + '\n\n')
+    print('::: {.panel-tabset} \n\n')
+    print('## Summary\n\n')
+    
+    if diff_summary is not None:
+        show(diff_summary)
+    
+    print('\n\n## Deleted Rows\n\n')
+    
+    if len(deleted) > 0:
+        print('::: {.panel-tabset}\n')
+        for j in deleted:
+            print('### ' + j + '\n\n')
+            show(deleted[j])
+        print('\n\n:::\n')
+    else:
+        print("No deleted rows")
+    
+    print('\n\n## Inserted Rows\n\n')
+    
+    if len(inserted) > 0:
+        print('::: {.panel-tabset}\n')
+        for j in inserted:
+            print('### ' + j + '\n\n')
+            show(inserted[j])
+        print('\n\n:::\n')
+    else:
+        print("No inserted rows")
+    
+    print('\n\n## Updated Rows\n\n')
+    
+    if len(updated) > 0:
+        print('::: {.panel-tabset}\n')
+        for j in updated:
+            print('### ' + j + '\n\n')
+            show(updated[j], allow_html = True)
+        print('\n\n:::\n')
+    else:
+        print("No updated rows")
+    
+    print('\n\n:::')
+```

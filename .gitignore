@@ -1,21 +1,8 @@
-# default ignore
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-.positai
-
-# R project file
-*.Rproj
-
 # report output files
 *.html
 
 # extraneous outputs from data diffing
-*.json
-*.diff
-SDE_reconciliation_reports_files/*
-__pycache__/
+__pycache__/*
 
-# script that specifies which gpkg objects to compare
-comparison_dict.py
+# script that specifies which gpkg objects to compare and the output name/location
+report_specifications.py

@@ -5,12 +5,12 @@ These files are used to generate an HTML report that shows the pairwise differen
 ## File descriptions
 
 - custom_diff_functions.py: Functions called by the report generation script. Includes functions that read geopackages into dictionaries and find differences between the datasets.
-- report_specifications.py: Not included in the repo, but a template for the file is below, in the usage section. This file specifies a file path for the generated report and a list of comparisons to include.
+- report_specifications.py: Not included in the repo, but a template for the file is in the usage section below. This file specifies a file path for the generated report and a list of comparisons to include.
 - data_difference_report.py: This script generates the HTML report and calls custom_diff_functions.py and report_specifications.py.
 
 ## Usage
 
-Create a file called report_specifications.py. It needs to specify the file path for the HTML output. It also needs to include a nested dictionary describing the geopackage comparisons to include. Use this template:
+Create a file in this folder called report_specifications.py. It needs to specify the file path for the HTML output. It also needs to include a nested dictionary describing the geopackage comparisons to include. Use this template:
 
 ```python
 out_html_name = 'path/to/report_file.html'

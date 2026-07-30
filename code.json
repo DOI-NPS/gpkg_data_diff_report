@@ -14,10 +14,10 @@
         }
       ]
     },
-    "homepageURL": "https://github.com/DOI-NPS/geopackage_data_diff_report",
-    "downloadURL": "https://github.com/DOI-NPS/geopackage_data_diff_report",
-    "disclaimerURL": "hhtps://github.com/DOI-NPS/geopackage_data_diff_report/LICENSE",
-    "repositoryURL": "https://github.com/DOI-NPS/geopackage_data_diff_report",
+    "homepageURL": "https://github.com/DOI-NPS/gpkg_data_diff_report",
+    "downloadURL": "https://github.com/DOI-NPS/gpkg_data_diff_report",
+    "disclaimerURL": "hhtps://github.com/DOI-NPS/gpkg_data_diff_report/LICENSE",
+    "repositoryURL": "https://github.com/DOI-NPS/gpkg_data_diff_report",
     "vcs": "git",
     "laborHours": 20,
     "tags": [

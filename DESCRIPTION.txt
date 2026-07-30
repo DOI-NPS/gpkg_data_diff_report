@@ -1,0 +1,13 @@
+Package: gpkg_data_diff
+Title: Scripts to Generate Data Difference Reports
+Version: 1.0.0
+Authors@R: c(
+    person(given="Amy", family="Luo", email="aluo@nps.gov",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-9197-4673"))
+    )
+Description: This repository includes scripts that generate HTML reports that show the differences between .gpkg files.
+License: CC0 + file LICENSE
+Encoding: UTF-8
+URL: https://github.com/doi-NPS/geopackage_data_diff_report
+BugReports: https://github.com/doi-NPS/geopackage_data_diff_report/issues

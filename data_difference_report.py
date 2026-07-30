@@ -74,9 +74,11 @@ with open(out_html_name, 'w', encoding='utf-8') as f:
     f.write('<title>SDE Data Diff Report</title>\n')
     f.write(TAB_STYLE_SCRIPT)
     f.write('</head>\n<body>\n')
+    f.write('<h1>Geopackage data difference report</h1>\n\n')
+    f.write('Version A is considered the base or original version, and version B is considered the modified version. Deleted rows are only present in A, and inserted rows are only present in B. \n\n')
 
     for i in comparisons:
-        f.write(f"<h1>{comparisons[i]['name']}</h1>\n\n")
+        f.write(f"<h2>{comparisons[i]['name']}</h2>\n\n")
 
         base = diff.read_multi_gpkg(comparisons[i]['original'])
         modified = diff.read_multi_gpkg(comparisons[i]['changed'])
@@ -115,15 +117,15 @@ with open(out_html_name, 'w', encoding='utf-8') as f:
             outer_tabs['Summary'] = make_tabset(summary_tabs)
 
         if len(deletions) > 0:
-            deletion_tabs = {j: to_html_datatable(deletions[j]) for j in deletions}
+            deletion_tabs = {j: to_html_datatable(deletions[j], maxRows = 1000, maxBytes = 0) for j in deletions}
             outer_tabs['Deleted Rows'] = make_tabset(deletion_tabs)
 
         if len(insertions) > 0:
-            insertion_tabs = {j: to_html_datatable(insertions[j]) for j in insertions}
+            insertion_tabs = {j: to_html_datatable(insertions[j], maxRows = 1000, maxBytes = 0) for j in insertions}
             outer_tabs['Inserted Rows'] = make_tabset(insertion_tabs)
 
         if len(updates) > 0:
-            update_tabs = {j: to_html_datatable(updates[j], allow_html=True) for j in updates}
+            update_tabs = {j: to_html_datatable(updates[j], maxRows = 1000, maxBytes = 0, allow_html=True) for j in updates}
             outer_tabs['Updated Rows'] = make_tabset(update_tabs)
 
         f.write(make_tabset(outer_tabs))

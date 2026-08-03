@@ -77,6 +77,10 @@ with open(out_html_name, 'w', encoding='utf-8') as f:
     f.write('<h1>Geopackage data difference report</h1>\n\n')
     f.write('Version A is considered the base or original version, and version B is considered the modified version. Deleted rows are only present in A, and inserted rows are only present in B. \n\n')
 
+    # ADD A TREE SHOWING THE RELATIONSHIPS BETWEEN GPKG VERSIONS
+    # CAN VISUALIZE THIS AS A PHYLOGENETIC NETWORK AND SAVE IN NEWICK FORMAT
+    # IN LEAF TIPS, INCLUDE THE LAST MODIFICATION DATE, IF POSSIBLE
+
     for i in comparisons:
         f.write(f"<h2>{comparisons[i]['name']}</h2>\n\n")
 
@@ -88,7 +92,19 @@ with open(out_html_name, 'w', encoding='utf-8') as f:
         row_summary = diff.summarize_row_changes(base, modified)
         deletions = {j: pd.DataFrame(v) for j, v in diff.find_deleted_rows(base, modified).items()}
         insertions = {j: pd.DataFrame(v) for j, v in diff.find_inserted_rows(base, modified).items()}
+
         updates = {j: pd.DataFrame(v) for j, v in diff.find_updated_rows(base, modified).items()}
+        df_to_del = []
+        for i in updates:
+            if 'index'.casefold() in updates[i]:
+                no_idx = updates[i].drop(columns=['index'.casefold()])
+                is_updated = no_idx.astype(str).apply(lambda row: row.str.contains('<br>').any(), axis=1)
+                keep_df = pd.DataFrame(list(zip(no_idx['OBJECTID'], is_updated)), columns=['OBJECTID', 'keep'])
+                keep_objectid = keep_df[keep_df['keep'] == True]['OBJECTID'].to_list()
+                updates[i] = updates[i][updates[i]['OBJECTID'].isin(keep_objectid)]
+            if len(updates[i]) == 0:
+                df_to_del.append(i)
+        updates = {k: v for k, v in updates.items() if k not in df_to_del}
 
         if all([layer_diff.empty, len(colnames) == 0, len(col_dtypes) == 0,
                 row_summary.empty, len(deletions) == 0, len(insertions) == 0, len(updates) == 0]):

@@ -1,6 +1,8 @@
 # IMPORT DEPENDENCIES
 import pandas as pd
 from itables import to_html_datatable
+import toytree
+import toyplot.html
 
 # these are custom functions from a script in this directory
 import custom_diff_functions as diff
@@ -70,16 +72,21 @@ TAB_STYLE_SCRIPT = '''
 
 # WRITE HTML
 with open(out_html_name, 'w', encoding='utf-8') as f:
+    # header
     f.write('<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n')
-    f.write('<title>SDE Data Diff Report</title>\n')
+    f.write('<title>Geospatial Data Diff Report</title>\n')
     f.write(TAB_STYLE_SCRIPT)
     f.write('</head>\n<body>\n')
+
+    # start writing text at beginning of report
     f.write('<h1>Geopackage data difference report</h1>\n\n')
     f.write('Version A is considered the base or original version, and version B is considered the modified version. Deleted rows are only present in A, and inserted rows are only present in B. \n\n')
 
-    # ADD A TREE SHOWING THE RELATIONSHIPS BETWEEN GPKG VERSIONS
-    # CAN VISUALIZE THIS AS A PHYLOGENETIC NETWORK AND SAVE IN NEWICK FORMAT
-    # IN LEAF TIPS, INCLUDE THE LAST MODIFICATION DATE, IF POSSIBLE
+    # plot tree that shows the relationship between different versions
+    tree = toytree.tree(newick_tree)
+    canvas, axes, mark = tree.draw(tip_labels_align = True, use_edge_lengths = False)
+    tree_plot = toyplot.html.tostring(canvas, style=None)
+    f.write(tree_plot)
 
     for i in comparisons:
         f.write(f"<h2>{comparisons[i]['name']}</h2>\n\n")

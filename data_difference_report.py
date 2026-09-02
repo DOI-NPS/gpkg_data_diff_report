@@ -1,16 +1,26 @@
 # IMPORT DEPENDENCIES
 import pandas as pd
 from itables import to_html_datatable
-import toytree
-import toyplot.html
+import base64
 
 # these are custom functions from a script in this directory
 import custom_diff_functions as diff
 
-# this is a dictionary with the comparisons to be included in the report
-# it's in .gitignore
+# this is a file that includes specifies what should be included in the report
+# it's in .gitignore, but the README includes a template to create one
 with open('report_specifications.py') as f:
     exec(f.read())
+
+# optionally, create a Mermaid flowchart of the version tree
+if create_diagram == True:
+    import mermaidx
+    diagram = mermaidx.render(version_tree_mmd)
+    diagram.save(version_tree_image)
+
+# turn the image of a version tree into a base64 string
+with open(version_tree_image, 'rb') as f:
+    version_tree_bytes = base64.b64encode(f.read())
+    version_tree_string = version_tree_bytes.decode("utf-8")
 
 # FUNCTION TO MAKE TAB SETS
 _tab_counter = 0
@@ -73,23 +83,29 @@ TAB_STYLE_SCRIPT = '''
 # WRITE HTML
 with open(out_html_name, 'w', encoding='utf-8') as f:
     # header
-    f.write('<!DOCTYPE html>\n<html>\n<head>\n<meta charset="utf-8">\n')
+    f.write('<!DOCTYPE html>\n')
+    f.write('<html>\n')
+    f.write('<head>\n')
+    f.write('<meta charset="utf-8">\n')
     f.write('<title>Geospatial Data Diff Report</title>\n')
     f.write(TAB_STYLE_SCRIPT)
-    f.write('</head>\n<body>\n')
+    f.write('</head>\n')
 
     # start writing text at beginning of report
+    f.write('<body>\n')
     f.write('<h1>Geopackage data difference report</h1>\n\n')
     f.write('Version A is considered the base or original version, and version B is considered the modified version. Deleted rows are only present in A, and inserted rows are only present in B. \n\n')
 
-    # plot tree that shows the relationship between different versions
-    tree = toytree.tree(newick_tree)
-    canvas, axes, mark = tree.draw(tip_labels_align = True, use_edge_lengths = False)
-    tree_plot = toyplot.html.tostring(canvas, style=None)
-    f.write(tree_plot)
-
+    # show version tree
+    f.write('<h2>Version Tree</h2>\n\n')
+    if version_tree_image[-3:] == 'svg':
+        f.write(f'<img src="data:image/svg+xml;base64,{version_tree_string}">\n\n')
+    else:
+        f.write(f'<img src="data:image/{version_tree_image[-3:]};base64,{version_tree_string}">\n\n')
+    
+    # create tabsets for each pair-wise version comparison
     for i in comparisons:
-        f.write(f"<h2>{comparisons[i]['name']}</h2>\n\n")
+        f.write(f'<h2>{comparisons[i]['name']}</h2>\n\n')
 
         base = diff.read_multi_gpkg(comparisons[i]['original'])
         modified = diff.read_multi_gpkg(comparisons[i]['changed'])
@@ -155,3 +171,7 @@ with open(out_html_name, 'w', encoding='utf-8') as f:
         f.write('\n\n')
 
     f.write('</body>\n</html>\n')
+
+if create_diagram == True:
+    import os
+    os.remove(version_tree_image)

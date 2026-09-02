@@ -1,5 +1,11 @@
-# data
+# data files
 *.gpkg
+
+# images
+*.png
+*.jpg
+*.jpeg
+*.svg
 
 # report output files
 *.html

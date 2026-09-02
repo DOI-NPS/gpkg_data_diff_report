@@ -12,10 +12,33 @@ In each pairwise comparison of the report, the original version is called "A" an
 
 ## Usage
 
-Create a file in this folder called report_specifications.py. It needs to specify the (1) a tree in Newick format that describes the relationships between each version of the database (see note on Newick format below); (2) a file path for the HTML output; and (3) a nested dictionary describing the geopackage comparisons to include. Use this template:
+Using the template in the next section, create a file in this folder called report_specifications.py that specifies variables for the HTML report. Then run the report generation script:
 
 ```python
-newick_tree = '((A,(B,C)), (D,E));'
+python data_difference_report.py
+```
+
+## Template for report_specifications.py
+
+Create a report_specifications.py file with the variables in this template.
+
+-	create_diagram: Logical. Whether to produce a Mermaid chart of the version tree. Set to "False" if using a pre-existing image of the version tree.
+-	version_tree_image: File name for the image of the version tree. If `create_diagram = True`, this must be an .svg file.
+-	version_tree_mmd: Code block to produce a version tree Mermaid chart. See note on Mermaid below.
+-	out_html_name: Name of HTML report to be exported.
+-	comparisons: Dictionary of pair-wise version comparisons to include in the report. The number of comparisons (i.e., number of keys in the dictionary) can be changed.
+
+```python
+create_diagram = False
+version_tree_image = 'file_name.png'
+version_tree_mmd = """
+flowchart LR
+    A[Default version] --> B[Uncertified data]
+    B --> C[Certified data]
+    C --> D[Developmental version]
+    C --> E[Field data]
+"""
+
 out_html_name = 'path/to/report_file.html'
 
 comparisons = {
@@ -38,27 +61,22 @@ comparisons = {
       }
 }
 ```
-
-Then run the report generation script:
-
-```python
-python data_difference_report.py
-```
-
 ---
 
-**Newick format**
+## Mermaid charts
 
-Newick format is typically used to represent phylogenetic trees, but it is used here to represent similar relationships between geopackage versions. Each group is surrounded by parentheses, and groups can be nested within one another. So "(A,B)" is one group and "(C,D)" is another, which could be assembled into the tree "((A,B),(C,D));". E can be added, making the tree "(((A,B),(C,D)),E);". In the five-tip tree, the first four letters make a larger group that doesn't include E. The tree would be visualized as:
+Mermaid renders charts from text. This report uses a flowchart that shows how SDE versions are related to one another. When one version branches off from another, an arrow will point from the original to the new version. A --> B indicates that B branched off from A. Names for each version should be included in square brackets, but only upon first introduction of the version. For example, the following text will generate the chart below it.
 
-              +---A
-          +---|
-          |   +---B
-      +---| 
-      |   |   +---C
-    __|   +---|
-      |       +---D
-      |
-      +-----------E
+flowchart LR\
+    A[Default version] --> B[Uncertified data]\
+    B --> C[Certified data]\
+    C --> D[Developmental version]\
+    C --> E[Field data]
 
-Newick trees require outer parentheses that surround the entire tree, along with a semicolon at the end. There are browser, command line, and desktop GUI tools that will visualize Newick format strings. These tools can be used to check the tree structure before generating the report.
+```mermaid
+flowchart LR
+A[Default version] --> B[Uncertified data]
+B --> C[Certified data]
+C --> D[Developmental version]
+C --> E[Field data]
+```

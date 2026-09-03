@@ -98,6 +98,7 @@ def find_inserted_rows(gpkgA, gpkgB):
 # check for row updates
 def find_updated_rows(gpkgA, gpkgB):
     updated_rows = {}
+    missing_strings = ['NA', 'Na', 'na', 'NaN', 'nan', 'Nan' 'N/A', 'N/a', 'n/a', '']
     for i in list(set(gpkgA) & set(gpkgB)):
         # skip empty layers
         if gpkgA[i].empty or 'OBJECTID' not in gpkgA[i].columns:
@@ -138,11 +139,17 @@ def find_updated_rows(gpkgA, gpkgB):
                 versionAB = pd.Series(dtype = str)
                 for k in range(len(versionA)):
                     if pd.isna(versionA[k]) and pd.isna(versionB[k]):
-                        versionAB[k] = 'NaN'
+                        versionAB[k] = 'N/A'
+                    elif pd.isna(versionA[k]) and versionB[k] in missing_strings:
+                        versionAB[k] = 'N/A'
                     elif pd.isna(versionA[k]):
-                        versionAB[k] = 'A: NaN<br>B: ' + str(versionB[k])
+                        versionAB[k] = 'A: N/A<br>B: ' + str(versionB[k])
+                    elif pd.isna(versionB[k]) and versionA[k] in missing_strings:
+                        versionAB[k] = 'N/A'
                     elif pd.isna(versionB[k]):
-                        versionAB[k] = 'A: ' + str(versionA[k]) + '<br>B: NaN'
+                        versionAB[k] = 'A: ' + str(versionA[k]) + '<br>B: N/A'
+                    elif versionA[k] in missing_strings and versionB[k] in missing_strings:
+                        versionAB[k] = 'N/A'
                     elif versionA[k] == versionB[k]:
                         versionAB[k] = str(versionA[k])
                     else:

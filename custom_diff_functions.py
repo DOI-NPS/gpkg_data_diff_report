@@ -5,18 +5,20 @@ import pandas as pd
 def read_multi_gpkg(path):
     gpkgs = {}
     layernames = gpd.list_layers(path)
-    layernames= layernames.iloc[:, 0].tolist()
+    layernames = layernames.iloc[:, 0].tolist()
     for layer in layernames:
         gpkgs[layer] = gpd.read_file(path, layer = layer)
         for col in gpkgs[layer].columns:
-            if gpkgs[layer][col].dtypes == object:
+            try:
                 gpkgs[layer][col] = gpkgs[layer][col].astype('int64')
+            except Exception:
+                gpkgs[layer][col] = gpkgs[layer][col].astype('string')
     return gpkgs
 
 # check whether the geopackages have the same layers
-def check_layer_match(gkpgA, gpkgB):
-    only_A = list(set(gkpgA) - set(gpkgB))
-    only_B = list(set(gpkgB) - set(gkpgA))
+def check_layer_match(gpkgA, gpkgB):
+    only_A = list(set(gpkgA) - set(gpkgB))
+    only_B = list(set(gpkgB) - set(gpkgA))
     combined_sets = {'Unique to A': pd.Series(only_A), 'Unique to B': pd.Series(only_B)}
     return pd.DataFrame(combined_sets)
 
@@ -65,9 +67,15 @@ def find_deleted_rows(gpkgA, gpkgB):
     for i in list(set(gpkgA) & set(gpkgB)):
         if gpkgA[i].empty:
             continue
-        deleted_objectid = list(set(gpkgA[i]['OBJECTID']) - set(gpkgB[i]['OBJECTID']))
-        if len(deleted_objectid) > 0:
-            deleted_rows[i] = gpkgA[i][gpkgA[i]['OBJECTID'].isin(deleted_objectid)]
+        if 'OBJECTID' in gpkgA[i].columns:
+            deleted_objectid = list(set(gpkgA[i]['OBJECTID']) - set(gpkgB[i]['OBJECTID']))
+            if len(deleted_objectid) > 0:
+                deleted_rows[i] = gpkgA[i][gpkgA[i]['OBJECTID'].isin(deleted_objectid)]
+        else:
+            comparison = pd.merge(gpkgA[i], gpkgB[i], how='outer', indicator=True)
+            deletions = comparison[comparison['_merge'] == 'left_only']
+            if len(deletions) > 0:
+                deleted_rows[i] = comparison[comparison['_merge'] == 'left_only']
     return deleted_rows
 
 # check for inserted rows
@@ -76,9 +84,15 @@ def find_inserted_rows(gpkgA, gpkgB):
     for i in list(set(gpkgA) & set(gpkgB)):
         if gpkgA[i].empty:
             continue
-        inserted_objectid = list(set(gpkgB[i]['OBJECTID']) - set(gpkgA[i]['OBJECTID']))
-        if len(inserted_objectid) > 0:
-            inserted_rows[i] = gpkgB[i][gpkgB[i]['OBJECTID'].isin(inserted_objectid)]
+        if 'OBJECTID' in gpkgA[i].columns:
+            inserted_objectid = list(set(gpkgB[i]['OBJECTID']) - set(gpkgA[i]['OBJECTID']))
+            if len(inserted_objectid) > 0:
+                inserted_rows[i] = gpkgB[i][gpkgB[i]['OBJECTID'].isin(inserted_objectid)]
+        else:
+            comparison = pd.merge(gpkgA[i], gpkgB[i], how='outer', indicator=True)
+            deletions = comparison[comparison['_merge'] == 'left_only']
+            if len(deletions) > 0:
+                inserted_rows[i] = comparison[comparison['_merge'] == 'right_only']
     return inserted_rows
 
 # check for row updates
@@ -86,7 +100,7 @@ def find_updated_rows(gpkgA, gpkgB):
     updated_rows = {}
     for i in list(set(gpkgA) & set(gpkgB)):
         # skip empty layers
-        if gpkgA[i].empty:
+        if gpkgA[i].empty or 'OBJECTID' not in gpkgA[i].columns:
             continue
         a_row_matches = gpkgA[i]
         b_row_matches = gpkgB[i]

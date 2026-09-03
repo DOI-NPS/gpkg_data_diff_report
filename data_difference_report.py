@@ -94,7 +94,8 @@ with open(out_html_name, 'w', encoding='utf-8') as f:
     # start writing text at beginning of report
     f.write('<body>\n')
     f.write('<h1>Geopackage data difference report</h1>\n\n')
-    f.write('Version A is considered the base or original version, and version B is considered the modified version. Deleted rows are only present in A, and inserted rows are only present in B. \n\n')
+    f.write('NOTE<br>')
+    f.write('Version A is considered the base or original version, and version B is considered the modified version. Deleted rows are only present in A, and inserted rows are only present in B. If a table doesn\'t have an OBJECTID column, any changed rows will appear with the inserted and deleted rows. \n\n')
 
     # show version tree
     f.write('<h2>Version Tree</h2>\n\n')

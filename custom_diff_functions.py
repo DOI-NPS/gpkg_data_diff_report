@@ -137,10 +137,14 @@ def find_updated_rows(gpkgA, gpkgB):
                 versionB = update_dbl_df.iloc[:,j+1]
                 versionAB = pd.Series(dtype = str)
                 for k in range(len(versionA)):
-                    if versionA[k] == versionB[k]:
-                        versionAB[k] = str(versionA[k])
-                    elif pd.isna(versionA[k]) and pd.isna(versionB[k]):
+                    if pd.isna(versionA[k]) and pd.isna(versionB[k]):
                         versionAB[k] = 'NaN'
+                    elif pd.isna(versionA[k]):
+                        versionAB[k] = 'A: NaN<br>B: ' + str(versionB[k])
+                    elif pd.isna(versionB[k]):
+                        versionAB[k] = 'A: ' + str(versionA[k]) + '<br>B: NaN'
+                    elif versionA[k] == versionB[k]:
+                        versionAB[k] = str(versionA[k])
                     else:
                         versionAB[k] = 'A: ' + str(versionA[k]) + '<br>B: ' + str(versionB[k])
                 update_col_merge[update_dbl_df.columns[j][0]] = versionAB

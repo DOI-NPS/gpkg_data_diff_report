@@ -3,7 +3,7 @@
     "name": "Scripts to Generate Data Difference Reports",
     "organization": "NATIONAL PARK SERVICE",
     "description": "This repository includes scripts that generate HTML reports that show the differences between .gpkg files.",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "status": "ongoing development",
     "permissions": {
       "usageType": "openSource",
@@ -16,18 +16,14 @@
     },
     "homepageURL": "https://github.com/DOI-NPS/gpkg_data_diff_report",
     "downloadURL": "https://github.com/DOI-NPS/gpkg_data_diff_report",
-    "disclaimerURL": "hhtps://github.com/DOI-NPS/gpkg_data_diff_report/LICENSE",
+    "disclaimerURL": "https://github.com/DOI-NPS/gpkg_data_diff_report/blob/main/LICENSE",
     "repositoryURL": "https://github.com/DOI-NPS/gpkg_data_diff_report",
     "vcs": "git",
     "laborHours": 20,
     "tags": [
       "NRSS",
       "IMD",
-      "geospatial",
-      "geopackage",
-      "reporting",
-      "data management",
-      "data differences"
+      "SWNC"
     ],
     "languages": [
       "python"
@@ -37,7 +33,7 @@
       "email": "aluo@nps.gov"
     },
     "date": {
-      "metadataLastUpdated": "2026-07-30"
+      "metadataLastUpdated": "2026-09-28"
     }
   }
 ]
